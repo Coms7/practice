@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+  		<meta charset="UTF-8"/>
+		<link rel="stylesheet" href="css/index.css">
+  		<title>登録郵便番号一覧</title>
+	</head>
+	<body>
+		<h1>郵便番号リスト</h1>
+		<form action="/insert" method="post" accept-charset="UTF-8">
+			<label for="insert">新規登録</label>
+			<input id="zip_code" name="郵便番号" type="number"/>
+			<input id="prefecture" name="都道府県名" type="text"/>
+			<input id="city" name="市区町村名" type="text"/>
+			<input id="town_area" name="町域名" type="text"/>
+			<input name="commit" type="submit" value="送信" data-disable-with="送信中..." />
+		</form>
+		<% @results.each do |row| %>
+			<p><%= row.values %></p>
+    	<% end %>
+	</body>
+</html>
