@@ -3,6 +3,8 @@ require "bundler/setup"
 require 'mysql2'
 require 'sinatra'
 require 'json'
+require 'uri'
+require 'net/http'
 
 #本来秘匿情報なのでどこかに分けて記述したい
 client = Mysql2::Client.new(host: "localhost", username: "root", password: '', database: 'ruby_tutorial')
@@ -29,7 +31,7 @@ post '/search' do
   ID = params[:ID]
   statement = client.prepare('SELECT * FROM zip_codes WHERE id = ?;')
   @results = statement.execute(ID)
-  if(@results == nil)
+  if(@results.size == 0)
     'status:400 not found'
   else
     @results
@@ -38,10 +40,20 @@ post '/search' do
 end
 
 put '/update' do
-  zip_codes = params[:zip_codes]
-  statement = client.prepare('UPDATE FROM zip_codes WHERE id = ?;' )
-  results = statement.execute(zip_codes["zip_code"], zip_codes["prefecture"], zip_codes["city"], zip_codes["town_area"])
-  
+   zip_codes = params[:zip_codes]
+   statement = client.prepare('SELECT * FROM zip_codes WHERE id = ? ;' )
+   results = statment.execute(zip_codes["id"])
+   #存在チェック
+    if(results.size == 0)
+      'status:400 not found'
+    else
+      #登録処理
+   statement = client.prepare('UPDATE zip_codes SET zip_code = ? prefecture = ? city = ? town_area = ? WHERE  id = ?;')
+   results = statement.execute(zip_codes["zip_code"], zip_codes["prefecture"], zip_codes["city"], zip_codes["town_area"], zip_codes["id"])
+   @results = client.query('SELECT id, zip_code, prefecture, city, town_area FROM zip_codes;')
+   erb :index
+   end
+ end
 
 
 

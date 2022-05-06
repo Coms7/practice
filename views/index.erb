@@ -11,6 +11,11 @@
       <input type="text" name="ID" placeholder="IDを入力" required>
       <input type="submit" name="search_zip_code" value="検索">
      </form>
+	 <h2>郵便番号を入力して検索</h2>
+    <form action="/search_from_zip_code" method="POST">
+      <input type="text" name="zip_code" placeholder="郵便番号を入力" required>
+      <input type="submit" name="search_zip_code" value="検索">
+    </form>
 	 <h2>郵便番号登録</h2>
 	 <form action="/insert" method="POST">
 	   <input type="text" name="zip_codes[zip_code]" placeholder="郵便番号を入力" required>
@@ -20,7 +25,7 @@
 	   <input type="submit" value="登録">
 	 </form>
 	 <h2>郵便番号更新</h2>
-	 <form action="/update" method="POST">
+	 <form action="/update" method="PUT">
 	   <input type="number" name="zip_codes[id]" placeholder="IDを入力" required>
 	   <input type="text" name="zip_codes[zip_code]" placeholder="郵便番号を入力" required>
 	   <input type="text" name="zip_codes[prefecture]" placeholder="都道府県名を入力" required>
