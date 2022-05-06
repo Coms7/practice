@@ -1,22 +1,43 @@
 <!DOCTYPE html>
 <html lang="ja">
-	<head>
-  		<meta charset="UTF-8"/>
-		<link rel="stylesheet" href="css/index.css">
-  		<title>登録郵便番号一覧</title>
-	</head>
-	<body>
-		<h1>郵便番号リスト</h1>
-		<form action="/insert" method="post" accept-charset="UTF-8">
-			<label for="insert">新規登録</label>
-			<input id="zip_code" name="郵便番号" type="number"/>
-			<input id="prefecture" name="都道府県名" type="text"/>
-			<input id="city" name="市区町村名" type="text"/>
-			<input id="town_area" name="町域名" type="text"/>
-			<input name="commit" type="submit" value="送信" data-disable-with="送信中..." />
-		</form>
-		<% @results.each do |row| %>
-			<p><%= row.values %></p>
-    	<% end %>
-	</body>
+  <head>
+    <meta charset="UTF-8"/>
+    <title>郵便番号検索</title>
+  </head>
+  <body>
+    <h1>郵便番号検索</h1>
+    <h2>郵便番号を入力して検索</h2>
+    <form action="/search" method="POST">
+      <input type="text" name="zip_code" placeholder="郵便番号を入力" required>
+      <input type="submit" name="search_zip_code" value="検索">
+    </form>
+	<h2>郵便番号登録</h2>
+	<form action="/insert" method="POST">
+	  <input type="text" name="zip_codes[zip_code]" placeholder="郵便番号を入力" required>
+	  <input type="text" name="zip_codes[prefecture]" placeholder="都道府県名を入力" required>
+	  <input type="text" name="zip_codes[city]" placeholder="市区町村名を入力" required>
+	  <input type="text" name="zip_codes[town_area]" placeholder="町域名を入力" required>
+	  <input type="submit" value="登録">
+	</form>
+    <h2>検索した郵便番号一覧</h2>
+    <table border='1'>
+      <tr>
+        <th>id</th>
+        <th>郵便番号</th>
+        <th>都道府県</th>
+        <th>市区町村</th>
+        <th>町域名</th>
+      </tr>
+      <tr>
+	    <% @results.each do |row| %>
+        <td><%= row ['id'] %></td>
+        <td><%= row ['zip_code'] %></td>
+        <td><%= row ['prefecture'] %></td>
+        <td><%= row ['city'] %></td>
+        <td><%= row ['town_area'] %></td>
+      </tr>
+		<% end %>
+      </tr>
+    </table>
+  </body>
 </html>
