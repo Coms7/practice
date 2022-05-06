@@ -9,22 +9,18 @@ client = Mysql2::Client.new(host: "localhost", username: "root", password: '', d
 
 # #全件取得
  get '/show' do
-   @results = client.query('SELECT zip_code, prefecture, city, town_area FROM zip_codes ORDER BY id DESC;')
+   @results = client.query('SELECT id, zip_code, prefecture, city, town_area FROM zip_codes;')
    erb :index
- end
+ end 
 
 
 # レコード新規登録
  post '/insert' do
-  @params = {}
-    statement = client.prepare('INSERT INTO zip_codes(
-                                zip_code, 
-                                prefecture, 
-                                city, 
-                                town_area,)
+    zip_codes = params[:zip_codes]
+    statement = client.prepare('INSERT INTO zip_codes(zip_code, prefecture, city, town_area, created_at, updated_at)
                                 VALUES (?, ?, ?, ?, current_time, current_time);')
-    result = statment.execute()
-  
+    result = statement.execute(zip_codes["zip_code"], zip_codes["prefecture"], zip_codes["city"], zip_codes["town_area"])
+    erb :index
   end
 
 
