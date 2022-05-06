@@ -5,22 +5,22 @@
     <title>郵便番号検索</title>
   </head>
   <body>
-    <h1>郵便番号検索</h1>
-    <h2>郵便番号を入力して検索</h2>
-    <form action="/search" method="POST">
+     <h1>郵便番号検索</h1>
+     <h2>郵便番号を入力して検索</h2>
+     <form action="/search" method="POST">
       <input type="text" name="zip_code" placeholder="郵便番号を入力" required>
       <input type="submit" name="search_zip_code" value="検索">
-    </form>
-	<h2>郵便番号登録</h2>
-	<form action="/insert" method="POST">
-	  <input type="text" name="zip_codes[zip_code]" placeholder="郵便番号を入力" required>
-	  <input type="text" name="zip_codes[prefecture]" placeholder="都道府県名を入力" required>
-	  <input type="text" name="zip_codes[city]" placeholder="市区町村名を入力" required>
-	  <input type="text" name="zip_codes[town_area]" placeholder="町域名を入力" required>
-	  <input type="submit" value="登録">
-	</form>
-    <h2>検索した郵便番号一覧</h2>
-    <table border='1'>
+     </form>
+	 <h2>郵便番号登録</h2>
+	 <form action="/insert" method="POST">
+	   <input type="text" name="zip_codes[zip_code]" placeholder="郵便番号を入力" required>
+	   <input type="text" name="zip_codes[prefecture]" placeholder="都道府県名を入力" required>
+	   <input type="text" name="zip_codes[city]" placeholder="市区町村名を入力" required>
+	   <input type="text" name="zip_codes[town_area]" placeholder="町域名を入力" required>
+	   <input type="submit" value="登録">
+	 </form>
+     <h2>検索した郵便番号一覧</h2>
+     <table border='1'>
       <tr>
         <th>id</th>
         <th>郵便番号</th>

@@ -13,15 +13,14 @@ client = Mysql2::Client.new(host: "localhost", username: "root", password: '', d
    erb :index
  end 
 
-
 # レコード新規登録
- post '/insert' do
-    zip_codes = params[:zip_codes]
-    statement = client.prepare('INSERT INTO zip_codes(zip_code, prefecture, city, town_area, created_at, updated_at)
+post '/insert' do
+  zip_codes = params[:zip_codes]
+  statement = client.prepare('INSERT INTO zip_codes(zip_code, prefecture, city, town_area, created_at, updated_at)
                                 VALUES (?, ?, ?, ?, current_time, current_time);')
-    result = statement.execute(zip_codes["zip_code"], zip_codes["prefecture"], zip_codes["city"], zip_codes["town_area"])
-    erb :index
-  end
+  result = statement.execute(zip_codes["zip_code"], zip_codes["prefecture"], zip_codes["city"], zip_codes["town_area"])
+  redirect 'views/index.erb'
+end
 
 
 
