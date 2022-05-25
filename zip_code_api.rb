@@ -6,7 +6,7 @@ require 'uri'
 require 'net/http'
 
 
-client = Mysql2::Client.new(host: "localhost", username: "root", password: '', database: 'ruby_tutorial')
+client = Mysql2::Client.new(host: ENV['DB_HOST'], username: EMV['DB_USER_NAME'], password: ENV['DB_PASS'], database: EMV['DB_NAME']'ruby_tutorial')
 
 
 def not_found()
@@ -49,7 +49,8 @@ post '/zip_codes' do
   statement = client.prepare('INSERT INTO zip_codes(zip_code, prefecture, city, town_area, created_at, updated_at)
                                 VALUES (?, ?, ?, ?, current_time, current_time);')
   results = statement.execute(zip_codes["zip_code"], zip_codes["prefecture"], zip_codes["city"], zip_codes["town_area"])
-  bad_request().to_json = if results.size.zero? 
+  if results.size.zero?
+    bad_request().to_json 
   else
     data = [
       {
@@ -57,16 +58,20 @@ post '/zip_codes' do
       status_code: 201
       }
     ]
-  end
-    data.to_json
+    end
+  data.to_json
 end
+
+
+
 
 
 #id指定get
 get '/zip_codes/:id' do
   statement = client.prepare('SELECT * FROM zip_codes WHERE id = ? ;')
   results = statement.execute(params['id'])
-  not_found().to_json = if results.size.zero?
+  if results.size.zero?
+    not_found().to_json 
   else
     data = results.map do |row|
       hash = {
@@ -77,9 +82,10 @@ get '/zip_codes/:id' do
       town_area: row ['town_area']
     }
     end
-  end
-    data.to_json
+  data.to_json
 end
+
+
 
 #id指定アップデート
 put '/zip_codes/:id' do
@@ -87,28 +93,27 @@ put '/zip_codes/:id' do
   statement = client.prepare('SELECT * FROM zip_codes WHERE id = ? ;' )
   results = statement.execute(params['id'])
   #存在チェック
-  not_found().to_json = if results.size.zeroz?
-  else
+  return not_found().to_json if results.size.zeroz?
+  end
     #登録処理
     statement = client.prepare('UPDATE zip_codes SET zip_code = ?, prefecture = ?, city = ?, town_area = ? WHERE id = ?;')
     results = statement.execute(zip_codes["zip_code"], zip_codes["prefecture"], zip_codes["city"], zip_codes["town_area"], zip_codes["id"])
-    data = []
+    data = [
     hash = {
       status: 'updated',
       status_code: 200
     }
-    data.push(hash).to_json
-  end
+  ]
+    data.to_json
 end
+
 
 post '/request_zip_cloud/:zip_code' do
   result_hash = Struct.new(:status, :status_code )
   uri = URI("https://zipcloud.ibsnet.co.jp/api/search?zipcode=#{params['zip_code']}")
   res = Net::HTTP.get_response(uri)
   results = res.body
-  bad_request().to_json = if res.is_a?(Net::HTTPSuccess)
-  return
-
+  return bad_request().to_json if res.is_a?(Net::HTTPSuccess)
   if(results['status'] == 500)
     data = [
       {
@@ -142,15 +147,14 @@ end
 delete '/zip_codes/:id' do
 statement = client.prepare('DELETE FROM zip_codes WHERE id = ?;' )
 result = statement.execute(params['id'])
-  not_found().to_json = if result.size.zero?
-  else
+  if result.size.zero?
+    not_found().to_json
     data = [
       {
       status: 'deleted',
       status_code: 200
     }
   ]
-  end
     data.to_json
   end
 end
