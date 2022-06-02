@@ -6,7 +6,8 @@ require 'uri'
 require 'net/http'
 
 
-client = Mysql2::Client.new(host: ENV['DB_HOST'], username: EMV['DB_USER_NAME'], password: ENV['DB_PASS'], database: EMV['DB_NAME']'ruby_tutorial')
+client = Mysql2::Client.new(host: ENV['DB_HOST'], username: ENV['DB_USER_NAME'], 
+                            password:"", database: ENV['DB_NAME'])
 
 
 def not_found()
@@ -50,7 +51,7 @@ post '/zip_codes' do
                                 VALUES (?, ?, ?, ?, current_time, current_time);')
   results = statement.execute(zip_codes["zip_code"], zip_codes["prefecture"], zip_codes["city"], zip_codes["town_area"])
   if results.size.zero?
-    bad_request().to_json 
+    return bad_request().to_json 
   else
     data = [
       {
@@ -62,16 +63,12 @@ post '/zip_codes' do
   data.to_json
 end
 
-
-
-
-
 #id指定get
 get '/zip_codes/:id' do
   statement = client.prepare('SELECT * FROM zip_codes WHERE id = ? ;')
   results = statement.execute(params['id'])
   if results.size.zero?
-    not_found().to_json 
+    return not_found().to_json 
   else
     data = results.map do |row|
       hash = {
@@ -83,6 +80,7 @@ get '/zip_codes/:id' do
     }
     end
   data.to_json
+  end
 end
 
 
@@ -93,7 +91,8 @@ put '/zip_codes/:id' do
   statement = client.prepare('SELECT * FROM zip_codes WHERE id = ? ;' )
   results = statement.execute(params['id'])
   #存在チェック
-  return not_found().to_json if results.size.zeroz?
+  if results.size.zeroz?
+    return not_found().to_json  
   end
     #登録処理
     statement = client.prepare('UPDATE zip_codes SET zip_code = ?, prefecture = ?, city = ?, town_area = ? WHERE id = ?;')
@@ -113,8 +112,9 @@ post '/request_zip_cloud/:zip_code' do
   uri = URI("https://zipcloud.ibsnet.co.jp/api/search?zipcode=#{params['zip_code']}")
   res = Net::HTTP.get_response(uri)
   results = res.body
-  return bad_request().to_json if res.is_a?(Net::HTTPSuccess)
-  if(results['status'] == 500)
+  if !res.is_a?(Net::HTTPSuccess)
+    return bad_request().to_json
+  elsif(results['status'] == 500)
     data = [
       {
       status: 'api internal error',
@@ -126,7 +126,7 @@ post '/request_zip_cloud/:zip_code' do
     not_found().to_json
   else
   #登録処理
-  @results.map do |row| 
+  results.map do |row| 
     data = [
       {
       zip_code: row ['zip_code'],
