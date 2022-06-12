@@ -4,11 +4,13 @@ require 'mysql2'
 require 'sinatra'
 require 'uri'
 require 'net/http'
+require 'dotenv'
 
-
-client = Mysql2::Client.new(host: ENV['DB_HOST'], username: ENV['DB_USER_NAME'], 
-                            password:"", database: ENV['DB_NAME'])
-
+def initialize
+  Dotenv.load
+@client = Mysql2::Client.new(host: ENV['DB_HOST'], username: ENV['DB_USER_NAME'], 
+                            password: ENV["DB_PASS"], database: ENV['DB_NAME'])
+end
 
 def not_found()
   data = [
@@ -31,7 +33,7 @@ end
 
 # 全件取得
 get '/zip_codes' do
-results = client.query('SELECT id, zip_code, prefecture, city, town_area FROM zip_codes;')
+results = @client.query('SELECT id, zip_code, prefecture, city, town_area FROM zip_codes;')
   data =  results.map do |row| 
     hash = {
       id: row ['id'],
@@ -47,7 +49,7 @@ end
 # レコード新規登録
 post '/zip_codes' do
   zip_codes = params[:zip_codes]
-  statement = client.prepare('INSERT INTO zip_codes(zip_code, prefecture, city, town_area, created_at, updated_at)
+  statement = @client.prepare('INSERT INTO zip_codes(zip_code, prefecture, city, town_area, created_at, updated_at)
                                 VALUES (?, ?, ?, ?, current_time, current_time);')
   results = statement.execute(zip_codes["zip_code"], zip_codes["prefecture"], zip_codes["city"], zip_codes["town_area"])
   if results.size.zero?
@@ -65,7 +67,7 @@ end
 
 #id指定get
 get '/zip_codes/:id' do
-  statement = client.prepare('SELECT * FROM zip_codes WHERE id = ? ;')
+  statement = @client.prepare('SELECT * FROM zip_codes WHERE id = ? ;')
   results = statement.execute(params['id'])
   if results.size.zero?
     return not_found().to_json 
@@ -88,14 +90,14 @@ end
 #id指定アップデート
 put '/zip_codes/:id' do
   zip_codes = params['zip_code', 'prefecture', 'city', 'town_area']
-  statement = client.prepare('SELECT * FROM zip_codes WHERE id = ? ;' )
+  statement = @client.prepare('SELECT * FROM zip_codes WHERE id = ? ;' )
   results = statement.execute(params['id'])
   #存在チェック
   if results.size.zeroz?
     return not_found().to_json  
   end
     #登録処理
-    statement = client.prepare('UPDATE zip_codes SET zip_code = ?, prefecture = ?, city = ?, town_area = ? WHERE id = ?;')
+    statement = @client.prepare('UPDATE zip_codes SET zip_code = ?, prefecture = ?, city = ?, town_area = ? WHERE id = ?;')
     results = statement.execute(zip_codes["zip_code"], zip_codes["prefecture"], zip_codes["city"], zip_codes["town_area"], zip_codes["id"])
     data = [
     hash = {
@@ -117,7 +119,7 @@ post '/request_zip_cloud/:zip_code' do
   elsif(results['status'] == 500)
     data = [
       {
-      status: 'api internal error',
+      status: 'internal error',
       status_code: 500
     }
   ]
@@ -136,7 +138,7 @@ post '/request_zip_cloud/:zip_code' do
     }
   ]
   end
-    statement = client.prepare('INSERT INTO zip_codes(zip_code, prefecture, city, town_area, created_at, updated_at)
+    statement = @client.prepare('INSERT INTO zip_codes(zip_code, prefecture, city, town_area, created_at, updated_at)
                                 VALUES (?, ?, ?, ?, current_time, current_time);')
     query = statement.execute(data["zip_code"], data["prefecture"], data["city"], data["town_area"])
     data.to_json
@@ -145,7 +147,7 @@ end
 
 #id指定デリート
 delete '/zip_codes/:id' do
-statement = client.prepare('DELETE FROM zip_codes WHERE id = ?;' )
+statement = @client.prepare('DELETE FROM zip_codes WHERE id = ?;' )
 result = statement.execute(params['id'])
   if result.size.zero?
     not_found().to_json
