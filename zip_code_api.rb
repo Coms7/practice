@@ -8,28 +8,14 @@ require 'dotenv'
 
 def initialize
   Dotenv.load
-@client = Mysql2::Client.new(host: ENV['DB_HOST'], username: ENV['DB_USER_NAME'], 
-                            password: ENV["DB_PASS"], database: ENV['DB_NAME'])
+@client = Mysql2::Client.new(
+  host: ENV['DB_HOST'], 
+  username: ENV['DB_USER_NAME'], 
+  password: ENV["DB_PASS"], 
+  database: ENV['DB_NAME']
+)
 end
 
-def not_found()
-  data = [
-    {
-      status: 'not found',
-      status_code: 400
-    }
-  ]
-  return
-end
-
-def bad_request()
-  data = [
-    {
-      status: 'bad request',
-      status_code: 400
-    }
-  ]
-end
 
 # 全件取得
 get '/zip_codes' do
@@ -110,7 +96,7 @@ end
 
 
 post '/request_zip_cloud/:zip_code' do
-  result_hash = Struct.new(:status, :status_code )
+  result_hash = Struct.new(:status, :status_code)
   uri = URI("https://zipcloud.ibsnet.co.jp/api/search?zipcode=#{params['zip_code']}")
   res = Net::HTTP.get_response(uri)
   results = res.body
@@ -160,3 +146,25 @@ result = statement.execute(params['id'])
     data.to_json
   end
 end
+
+private
+
+def not_found()
+  data = [
+    {
+      status: 'not found',
+      status_code: 400
+    }
+  ]
+  return
+end
+
+def bad_request()
+  data = [
+    {
+      status: 'bad request',
+      status_code: 400
+    }
+  ]
+end
+
