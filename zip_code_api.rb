@@ -6,6 +6,8 @@ require 'uri'
 require 'net/http'
 require 'dotenv'
 
+ZIP_CLOUD_URL = 'https://zipcloud.ibsnet.co.jp/api/search/'.fleeze
+
 def initialize
   Dotenv.load
 @client = Mysql2::Client.new(
@@ -14,6 +16,7 @@ def initialize
   password: ENV["DB_PASS"], 
   database: ENV['DB_NAME']
 )
+@resulet = []
 end
 
 
@@ -39,7 +42,7 @@ post '/zip_codes' do
                                 VALUES (?, ?, ?, ?, current_time, current_time);')
   results = statement.execute(zip_codes["zip_code"], zip_codes["prefecture"], zip_codes["city"], zip_codes["town_area"])
   if results.size.zero?
-    return bad_request().to_json 
+    return bad_request().to_json
   else
     data = [
       {
@@ -56,7 +59,7 @@ get '/zip_codes/:id' do
   statement = @client.prepare('SELECT * FROM zip_codes WHERE id = ? ;')
   results = statement.execute(params['id'])
   if results.size.zero?
-    return not_found().to_json 
+    return not_found().to_json
   else
     data = results.map do |row|
       hash = {
@@ -80,7 +83,7 @@ put '/zip_codes/:id' do
   results = statement.execute(params['id'])
   #存在チェック
   if results.size.zeroz?
-    return not_found().to_json  
+    return not_found().to_json
   end
     #登録処理
     statement = @client.prepare('UPDATE zip_codes SET zip_code = ?, prefecture = ?, city = ?, town_area = ? WHERE id = ?;')
